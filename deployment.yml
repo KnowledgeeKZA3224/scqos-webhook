@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scqos-webhook
+  namespace: scqos-system
+  labels:
+    app: scqos-webhook
+    app.kubernetes.io/name: scqos-webhook
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: scqos-webhook
+  template:
+    metadata:
+      labels:
+        app: scqos-webhook
+        app.kubernetes.io/name: scqos-webhook
+      annotations:
+        # scqos-system is exempt from gate enforcement (see namespace.yaml),
+        # so these annotations are informational, not gate-enforced.
+        scqos.io/observer: "platform-team"
+        scqos.io/lineage: "https://github.com/your-org/scqos-webhook"
+        scqos.io/purpose: "kubernetes-admission-gate"
+    spec:
+      serviceAccountName: scqos-webhook
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000
+      containers:
+        - name: webhook
+          # Pin this to a digest before production deployment.
+          # Example: ghcr.io/your-org/scqos-webhook@sha256:<digest>
+          image: ghcr.io/your-org/scqos-webhook:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+          env:
+            - name: SCQOS_PORT
+              value: "8443"
+            - name: SCQOS_TLS_CERT
+              value: /tls/tls.crt
+            - name: SCQOS_TLS_KEY
+              value: /tls/tls.key
+            - name: SCQOS_AUDIT_LOG
+              value: /audit/scqos-audit.log
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: tls
+              mountPath: /tls
+              readOnly: true
+            - name: audit
+              mountPath: /audit
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8443
+              scheme: HTTPS
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: tls
+          secret:
+            secretName: scqos-webhook-tls
+        - name: audit
+          emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: scqos-webhook
+  namespace: scqos-system
+  labels:
+    app: scqos-webhook
+    app.kubernetes.io/name: scqos-webhook

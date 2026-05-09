@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: scqos-webhook
+  namespace: scqos-system
+  labels:
+    app: scqos-webhook
+    app.kubernetes.io/name: scqos-webhook
+spec:
+  selector:
+    app: scqos-webhook
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443        # Kubernetes calls this port from the webhook config
+      targetPort: 8443 # The port the webhook container listens on

@@ -1,0 +1,60 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: scqos-admission-gate
+  labels:
+    app: scqos-webhook
+    app.kubernetes.io/name: scqos-webhook
+webhooks:
+  - name: scqos.validate.k8s.io
+    admissionReviewVersions: ["v1"]
+
+    # None: the webhook has no side effects. Required for dry-run support.
+    sideEffects: None
+
+    # Fail closed. If the webhook is unreachable, admission is denied.
+    # Change to Ignore only during initial cluster bootstrap, then revert.
+    failurePolicy: Fail
+
+    # 5 seconds. Slow gates are broken gates.
+    # Kubernetes default is 10s. Keeping it tight forces the webhook
+    # to stay fast or get caught by the timeout.
+    timeoutSeconds: 5
+
+    clientConfig:
+      service:
+        name: scqos-webhook
+        namespace: scqos-system
+        path: /validate
+        port: 443
+      # Required: base64-encoded CA certificate that signed the webhook TLS cert.
+      # Retrieve with:
+      #   kubectl -n scqos-system get secret scqos-webhook-tls \
+      #     -o jsonpath='{.data.ca\.crt}'
+      # Or if using cert-manager, reference the CA bundle from your Certificate resource.
+      caBundle: "" # <-- REPLACE before applying
+
+    # Resources and operations this webhook evaluates.
+    # Scoped to the six resource types defined in V1 scope.
+    rules:
+      - apiGroups:   ["", "apps", "batch"]
+        apiVersions: ["v1"]
+        operations:  ["CREATE", "UPDATE"]
+        resources:
+          - pods
+          - deployments
+          - jobs
+          - configmaps
+          - secrets
+          - serviceaccounts
+        scope: Namespaced
+
+    # Namespaces labelled scqos.io/exempt=true are skipped entirely.
+    # scqos-system carries this label (namespace.yaml) to prevent the
+    # bootstrapping deadlock of the webhook evaluating itself.
+    # Apply the same label to any namespace that must bootstrap before
+    # gate enforcement is ready.
+    namespaceSelector:
+      matchExpressions:
+        - key: scqos.io/exempt
+          operator: DoesNotExist

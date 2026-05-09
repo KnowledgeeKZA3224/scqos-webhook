@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: scqos-system
+  labels:
+    app.kubernetes.io/name: scqos-webhook
+    # scqos.io/exempt=true causes the ValidatingWebhookConfiguration
+    # namespaceSelector to skip this namespace.
+    # Required so the webhook pod itself is not evaluated during startup —
+    # evaluating your own admission controller before it is running is a
+    # bootstrapping deadlock.
+    scqos.io/exempt: "true"
