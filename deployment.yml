@@ -20,7 +20,7 @@ spec:
         # scqos-system is exempt from gate enforcement (see namespace.yaml),
         # so these annotations are informational, not gate-enforced.
         scqos.io/observer: "platform-team"
-        scqos.io/lineage: "https://github.com/your-org/scqos-webhook"
+        scqos.io/lineage: "https://github.com/KnowledgeeeKZA3224/scqos-webhook"
         scqos.io/purpose: "kubernetes-admission-gate"
     spec:
       serviceAccountName: scqos-webhook
