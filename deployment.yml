@@ -32,7 +32,7 @@ spec:
         - name: webhook
           # Pin this to a digest before production deployment.
           # Example: ghcr.io/your-org/scqos-webhook@sha256:<digest>
-          image: ghcr.io/your-org/scqos-webhook:latest
+          image: ghcr.io/KnowledgeeeKZA3224/scqos-webhook:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: https
