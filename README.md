@@ -133,7 +133,7 @@ scqos-webhook/
 
 ```bash
 # 1. Clone and enter
-git clone https://github.com/your-org/scqos-webhook
+github.com/KnowledgeeeKZA3224/scqos-webhook
 cd scqos-webhook
 
 # 2. Replace module path throughout
