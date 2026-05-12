@@ -36,10 +36,10 @@ import (
 	admissionv1 "k8s.io/api/admission/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/your-org/scqos-webhook/pkg/audit"
-	"github.com/your-org/scqos-webhook/pkg/evaluator"
-	"github.com/your-org/scqos-webhook/pkg/gates"
-	"github.com/your-org/scqos-webhook/pkg/packet"
+	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/audit"
+	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/evaluator"
+	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/gates"
+	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/packet"
 )
 
 const (
