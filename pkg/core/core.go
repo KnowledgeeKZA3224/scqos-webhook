@@ -9,7 +9,7 @@ import (
 
 	admissionv1 "k8s.io/api/admission/v1"
 
-	"github.com/your-org/scqos-webhook/pkg/packet"
+	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/packet"
 )
 
 // DefaultChain is the ordered gate sequence applied to every admission request.
