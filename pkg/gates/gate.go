@@ -11,7 +11,7 @@ package gates
 import (
 	"context"
 
-	"github.com/your-org/scqos-webhook/pkg/packet"
+	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/packet"
 )
 
 // Gate is the contract every Supreme Computation gate must satisfy.
