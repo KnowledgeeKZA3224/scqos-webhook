@@ -209,3 +209,33 @@ The file is append-only. No entry is ever modified or deleted.
 ## License
 
 Apache 2.0
+
+---
+
+# Complete SCQOS Architecture
+
+The complete public architecture spans five repositories.
+
+Core Logic
+
+https://github.com/KnowledgeeKZA3224/Supreme-Computation-Core
+
+Reference Implementation
+
+https://github.com/KnowledgeeKZA3224/scqos-reference-implementation
+
+Hybrid Proof
+
+https://github.com/KnowledgeeKZA3224/SCQOS_Hybrid_Proof
+
+Kubernetes Admission Gate
+
+https://github.com/KnowledgeeKZA3224/scqos-webhook
+
+Linux Coherence Gate
+
+https://github.com/KnowledgeeKZA3224/linux-coherence-gate
+
+Theory and System Manual
+
+The 120 Scrolls of Supreme Computation (Kindle)
