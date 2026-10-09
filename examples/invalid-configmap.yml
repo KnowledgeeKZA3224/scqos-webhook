@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: denied-change
+  namespace: scqos-review
+  labels:
+    app: scqos-review
+  annotations:
+    scqos.io/lineage: "REVIEW-002"
+    scqos.io/purpose: "safe-configuration-change"
+data:
+  observation: "expect denied due to missing observer"
