@@ -141,6 +141,7 @@ go mod tidy
 
 # 4. Start a local cluster
 kind create cluster --name scqos-test
+kubectl apply -f examples/review-namespace.yml
 
 # 5. Generate TLS certificate
 mkdir -p tls
@@ -168,13 +169,13 @@ CA_BUNDLE=$(base64 -w0 tls/tls.crt)
 sed "s|caBundle: \"\"|caBundle: \"${CA_BUNDLE}\"|" \
   webhook-config.yml | kubectl apply -f -
 
-# 10. Test — denied (no annotations)
-kubectl run bare --image=nginx --restart=Never
+# 10. Test — denied (no accountable observer)
+kubectl apply -f examples/invalid-configmap.yml
 # Error: admission webhook denied the request
 # [SCQOS:Genesis:MISSING_OBSERVER] annotation "scqos.io/observer" is required
 
 # 11. Test — allowed (annotated)
-kubectl apply -f examples/valid-pod.yaml
+kubectl apply -f examples/valid-configmap.yml
 ```
 
 -----
@@ -186,7 +187,7 @@ kubectl apply -f examples/valid-pod.yaml
 |`failurePolicy`       |`Fail`                |Webhook down = cluster closed. No silent bypass.|
 |`timeoutSeconds`      |`5`                   |Slow gates are broken gates.                    |
 |`sideEffects`         |`None`                |Webhook is read-only. Required for dry-run.     |
-|Namespace exempt label|`scqos.io/exempt=true`|Bootstrapping escape hatch. Use sparingly.      |
+|Namespace opt-in label|`scqos.io/enforce=true`|Only explicitly opted-in namespaces are governed. Prevents bootstrap deadlock.      |
 
 -----
 
@@ -244,3 +245,8 @@ The 120 Scrolls of Supreme Computation (Kindle)
 - This repository's local append-only JSONL audit records are not independently cryptographically immutable or durable across pod termination; cryptographic receipts are documented in the separate SCQOS reference/evidence repos.
 - The Kubernetes API receives only allow or deny; the SCQOS internal HOLD outcome must be translated into deny/defer for protected operations.
 - Independent review dossier: https://github.com/KnowledgeeKZA3224/scqos-webhook/issues/1
+
+
+### Opt-in safety boundary
+
+**Do not apply the validating webhook cluster-wide during review.** The example `webhook-config.yml` matches only namespaces labeled `scqos.io/enforce: "true"`. `examples/review-namespace.yml` creates a bounded test namespace. Remove that label to stop admission evaluation for that namespace. Existing `scqos-system` remains outside the selector.
