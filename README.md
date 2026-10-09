@@ -2,7 +2,7 @@
 
 SCQOS (Supreme Computation Quantum Operating System) is a pre-execution coherence webhook for Kubernetes.
 
-It evaluates every `Pod`, `Deployment`, `Job`, `ConfigMap`, `Secret`, and `ServiceAccount` against nine coherence gates before Kubernetes admits it to the cluster.
+When installed, the opt-in ValidatingWebhookConfiguration evaluates matching `Pod`, `Deployment`, `Job`, `ConfigMap`, `Secret`, and `ServiceAccount` CREATE/UPDATE admission requests. The implementation uses nine sequential internal checks mapped to Supreme Computation's unified eight-invariant governing contract; scope and bypass/exemption policy remain Kubernetes cluster-administrator decisions.
 
 This is not a patch to Kubernetes core. It is an official integration point: Kubernetes calls your gate; your gate decides.
 
@@ -114,17 +114,17 @@ scqos-webhook/
 │   ├── packet/
 │   │   └── packet.go            # AdmissionReview → SCQOSPacket
 │   ├── gates/
-│   │   ├── gate.go              # Gate interface + GateResult + DefaultChain
-│   │   └── core.go              # All nine gate implementations
+│   │   ├── gate.go              # Gate interface + GateResult
+│   │   └── core.go              # DefaultChain and nine implementation checks
 │   ├── evaluator/
 │   │   └── evaluator.go         # Fail-fast gate chain → AdmissionResponse
 │   └── audit/
 │       └── audit.go             # Append-only structured JSONL log
-└── deploy/
-    ├── namespace.yaml           # scqos-system namespace with exempt label
-    ├── deployment.yaml          # 2-replica deployment + ServiceAccount
-    ├── service.yaml             # ClusterIP service 443 → 8443
-    └── webhook-config.yaml      # ValidatingWebhookConfiguration
+├── namespace.yml               # scqos-system namespace with exempt label
+├── deployment.yml              # 2-replica deployment + ServiceAccount
+├── service.yml                 # ClusterIP service 443 → 8443
+├── webhook-config.yml          # ValidatingWebhookConfiguration
+└── Dockerfile                  # Go build + minimal runtime
 ```
 
 -----
@@ -133,15 +133,10 @@ scqos-webhook/
 
 ```bash
 # 1. Clone and enter
-github.com/KnowledgeeeKZA3224/scqos-webhook
+git clone https://github.com/KnowledgeeKZA3224/scqos-webhook.git
 cd scqos-webhook
 
-# 2. Replace module path throughout
-find . -name "*.go" -exec sed -i \
-  's|github.com/your-org/scqos-webhook|github.com/YOUR_ORG/scqos-webhook|g' {} +
-sed -i 's|your-org|YOUR_ORG|g' go.mod
-
-# 3. Resolve dependencies
+# 2. Resolve dependencies
 go mod tidy
 
 # 4. Start a local cluster
@@ -155,7 +150,7 @@ openssl req -x509 -newkey rsa:4096 \
   -subj "/CN=scqos-webhook.scqos-system.svc"
 
 # 6. Create namespace and TLS secret
-kubectl apply -f deploy/namespace.yaml
+kubectl apply -f namespace.yml
 kubectl -n scqos-system create secret tls scqos-webhook-tls \
   --cert=tls/tls.crt --key=tls/tls.key
 
@@ -164,13 +159,14 @@ docker build -t scqos-webhook:dev .
 kind load docker-image scqos-webhook:dev --name scqos-test
 
 # 8. Deploy webhook
-kubectl apply -f deploy/deployment.yaml
-kubectl apply -f deploy/service.yaml
+kubectl apply -f deployment.yml
+kubectl -n scqos-system set image deployment/scqos-webhook webhook=scqos-webhook:dev
+kubectl apply -f service.yml
 
-# 9. Register webhook (with caBundle)
+# 9. Select kind-local image, then register webhook (with caBundle)
 CA_BUNDLE=$(base64 -w0 tls/tls.crt)
 sed "s|caBundle: \"\"|caBundle: \"${CA_BUNDLE}\"|" \
-  deploy/webhook-config.yaml | kubectl apply -f -
+  webhook-config.yml | kubectl apply -f -
 
 # 10. Test — denied (no annotations)
 kubectl run bare --image=nginx --restart=Never
@@ -239,3 +235,12 @@ https://github.com/KnowledgeeKZA3224/linux-coherence-gate
 Theory and System Manual
 
 The 120 Scrolls of Supreme Computation (Kindle)
+
+
+## Reviewer boundary — October 2026
+
+- The nine ordered internal checks are an implementation of a **single eight-invariant governance claim**, not nine independent root invariants. `Purpose` is a declared intent check; `Coherence` is the terminal aggregation step. The `Consciousness` invariant is operationalized here as an accountable observer declaration, which is **not by itself proof of the actor's identity or authority**.
+- As written, the TimeGate measures duration since local request extraction, **not authenticated origin timestamp or replay detection**. Additional origin/nonce/authorization verification is required before claiming protection from replay or forged annotations.
+- This repository's local append-only JSONL audit records are not independently cryptographically immutable or durable across pod termination; cryptographic receipts are documented in the separate SCQOS reference/evidence repos.
+- The Kubernetes API receives only allow or deny; the SCQOS internal HOLD outcome must be translated into deny/defer for protected operations.
+- Independent review dossier: https://github.com/KnowledgeeKZA3224/scqos-webhook/issues/1
