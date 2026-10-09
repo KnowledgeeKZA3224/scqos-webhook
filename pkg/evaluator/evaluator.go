@@ -17,10 +17,11 @@ import (
 
 	admissionv1 "k8s.io/api/admission/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/audit"
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/gates"
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/packet"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/audit"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/gates"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/packet"
 )
 
 // Evaluator runs a gate chain against Supreme Computation packets.
@@ -80,14 +81,14 @@ func (e *Evaluator) Evaluate(ctx context.Context, p *packet.SCQOSPacket) *admiss
 
 func allowResponse(uid string) *admissionv1.AdmissionResponse {
 	return &admissionv1.AdmissionResponse{
-		UID:     admissionv1.UID(uid),
+		UID:     types.UID(uid),
 		Allowed: true,
 	}
 }
 
 func denyResponse(uid, gate, reason, message string) *admissionv1.AdmissionResponse {
 	return &admissionv1.AdmissionResponse{
-		UID:     admissionv1.UID(uid),
+		UID:     types.UID(uid),
 		Allowed: false,
 		Result: &metav1.Status{
 			Code:    403,
