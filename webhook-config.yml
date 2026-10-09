@@ -6,7 +6,7 @@ metadata:
     app: scqos-webhook
     app.kubernetes.io/name: scqos-webhook
 webhooks:
-  - name: scqos.validate.k8s.io
+  - name: validate.scqos.io
     admissionReviewVersions: ["v1"]
 
     # None: the webhook has no side effects. Required for dry-run support.
@@ -37,16 +37,20 @@ webhooks:
     # Resources and operations this webhook evaluates.
     # Scoped to the six resource types defined in V1 scope.
     rules:
-      - apiGroups:   ["", "apps", "batch"]
+      - apiGroups: [""]
         apiVersions: ["v1"]
-        operations:  ["CREATE", "UPDATE"]
-        resources:
-          - pods
-          - deployments
-          - jobs
-          - configmaps
-          - secrets
-          - serviceaccounts
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods", "configmaps", "secrets", "serviceaccounts"]
+        scope: Namespaced
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["deployments"]
+        scope: Namespaced
+      - apiGroups: ["batch"]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["jobs"]
         scope: Namespaced
 
     # Namespaces labelled scqos.io/exempt=true are skipped entirely.
@@ -57,4 +61,5 @@ webhooks:
     namespaceSelector:
       matchExpressions:
         - key: scqos.io/exempt
-          operator: DoesNotExist
+          operator: NotIn
+          values: ["true"]
