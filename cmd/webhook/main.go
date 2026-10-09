@@ -35,11 +35,12 @@ import (
 
 	admissionv1 "k8s.io/api/admission/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/audit"
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/evaluator"
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/gates"
-	"github.com/KnowledgeeeKZA3224/scqos-webhook/pkg/packet"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/audit"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/evaluator"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/gates"
+	"github.com/KnowledgeeKZA3224/scqos-webhook/pkg/packet"
 )
 
 const (
@@ -164,7 +165,7 @@ func writeResponse(w http.ResponseWriter, review *admissionv1.AdmissionReview, r
 
 // malformedResponse produces a deny response for a structurally broken AdmissionReview.
 func malformedResponse(review *admissionv1.AdmissionReview, err error) *admissionv1.AdmissionResponse {
-	uid := admissionv1.UID("")
+	uid := types.UID("")
 	if review.Request != nil {
 		uid = review.Request.UID
 	}
