@@ -53,13 +53,10 @@ webhooks:
         resources: ["jobs"]
         scope: Namespaced
 
-    # Namespaces labelled scqos.io/exempt=true are skipped entirely.
-    # scqos-system carries this label (namespace.yaml) to prevent the
+    # Only namespaces explicitly labelled scqos.io/enforce=true are included.
+    # scqos-system is not opted in (namespace.yml), preventing the
     # bootstrapping deadlock of the webhook evaluating itself.
-    # Apply the same label to any namespace that must bootstrap before
-    # gate enforcement is ready.
+    # This opt-in policy avoids cluster-wide disruptions during evaluation.
     namespaceSelector:
-      matchExpressions:
-        - key: scqos.io/exempt
-          operator: NotIn
-          values: ["true"]
+      matchLabels:
+        scqos.io/enforce: "true"
